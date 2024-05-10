@@ -1,0 +1,155 @@
+version: "3.4"
+services:
+
+  react:
+    #image: react
+    build: ./react
+    container_name: react_container
+    stdin_open: true
+    ports:
+      - "3000:3000"
+    networks:
+      - spring-network
+    volumes:
+      - ./Vax-Scheduler:/app
+      - /app/node_modules
+
+  # -----------------#
+  # Center  SERVICE  !
+  # -----------------#  
+  center_service:
+    container_name: center_service
+    #image: center
+    build: ./Center
+    ports:
+      - 8083:8083
+    environment:
+      MYSQL_HOST: mysqldb-center
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 1234
+      MYSQL_PORT: 3306
+    networks:
+      - spring-network
+    depends_on:
+      - mysqldb-center
+
+  mysqldb-center:
+    container_name: mysqldb-center
+    image: mysql:8.0
+    volumes:
+      - mysql-data-center:/var/lib/mysql
+    ports:
+      - 3033:3306
+    environment:
+      MYSQL_DATABASE: center
+      MYSQL_ROOT_PASSWORD: 1234
+    networks:
+      - spring-network
+
+  # -----------------#
+  # Vaccine  SERVICE !
+  # -----------------#
+
+  vaccine_service:
+    container_name: vaccine_service
+    #image: vaccine
+    build: ./Vaccine
+    ports:
+      - 8081:8081
+    environment:
+      MYSQL_HOST: mysqldb-vaccine
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 1234
+      MYSQL_PORT: 3306
+    networks:
+      - spring-network
+    depends_on:
+      - mysqldb-vaccine
+
+  mysqldb-vaccine:
+    container_name: mysqldb-vaccine
+    image: mysql:8.0
+    volumes:
+      - mysql-data-Vaccine:/var/lib/mysql
+    ports:
+      - 3031:3306
+    environment:
+      MYSQL_DATABASE: vaccine
+      MYSQL_ROOT_PASSWORD: 1234
+    networks:
+      - spring-network
+
+  # # -----------------#
+  # # REGISTER SERVICE !
+  # # -----------------#
+
+  mysqldb-register:
+    container_name: mysqldb-register
+    image: mysql:8.0
+    volumes:
+      - mysql-data-register:/var/lib/mysql
+    ports:
+      - 3030:3306
+    environment:
+      MYSQL_DATABASE: register
+      MYSQL_ROOT_PASSWORD: 1234
+    networks:
+      - spring-network
+
+  register_service:
+    container_name: register_service
+    #image: register
+    build: ./Register
+    ports:
+      - 8080:8080
+    environment:
+      MYSQL_HOST: mysqldb-register
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 1234
+      MYSQL_PORT: 3306
+    networks:
+      - spring-network
+    depends_on:
+      - mysqldb-register
+  # # -----------------#
+  # Reservation SERVICE !
+  # # -----------------#
+
+  mysqldb-reservation:
+    container_name: mysqldb-reservation
+    image: mysql:8.0
+    volumes:
+      - mysql-data-reservation:/var/lib/mysql
+    ports:
+      - 3032:3306
+    environment:
+      MYSQL_DATABASE: reservation
+      MYSQL_ROOT_PASSWORD: 1234
+    networks:
+      - spring-network
+
+  reservation_service:
+    container_name: reservation_service
+    #image: reservation
+    build: ./Reservation
+    ports:
+      - 8082:8082
+    environment:
+      MYSQL_HOST: mysqldb-reservation
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 1234
+      MYSQL_PORT: 3306
+    networks:
+      - spring-network
+    depends_on:
+      - mysqldb-reservation
+
+volumes:
+  mysql-data-center:
+  mysql-data-Vaccine:
+  mysql-data-register:
+  mysql-data-reservation:
+
+
+networks:
+  spring-network:
